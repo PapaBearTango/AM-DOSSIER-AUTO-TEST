@@ -17,5 +17,15 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Check manifest file
+        run: |
+          pwd
+          ls -l manifest-auto.xml
+          file manifest-auto.xml
+          python3 -c "import xml.etree.ElementTree as ET; ET.parse('manifest-auto.xml'); print('XML is well-formed')"
+
+      - name: Read manifest information
+        run: npx --yes office-addin-manifest info manifest-auto.xml
+
       - name: Validate manifest
         run: npx --yes office-addin-manifest validate manifest-auto.xml
