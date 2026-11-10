@@ -4,16 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
+
   <title>AM Dossier Auto Test</title>
 
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+
+  <script>
+    Office.onReady(function () {
+      console.log("AM Auto Test: Office.js is gereed");
+    });
+  </script>
+
   <script src="./launchevent.js"></script>
 </head>
 
 <body>
   <h3>AM Dossier Auto Test</h3>
   <p>Automatische test-runtime voor Outlook.</p>
-  <p>De onderwerpaanpassing gebeurt bij het openen
-     van een testantwoord, niet via dit venster.</p>
+  <p>Diagnoseversie: Office.js initialisatie.</p>
 </body>
 </html>
