@@ -1,70 +1,49 @@
-/*
- * AM Dossier Auto Test
- * Alleen testonderwerpen met AMTEST: worden aangepast.
- * Geen verbinding met Attio of SharePoint.
- */
-
 (function () {
   "use strict";
-
-  var TEST_NUMBER = "AM260158";
-  var TEST_MARKER = "AMTEST:";
-
-  function finish(event) {
-    if (event && typeof event.completed === "function") {
-      event.completed();
-    }
-  }
 
   function handleCompose(event) {
     var item = Office.context.mailbox.item;
 
+    function finish() {
+      event.completed();
+    }
+
     if (!item || !item.subject) {
-      finish(event);
+      finish();
       return;
     }
 
     item.subject.getAsync(function (result) {
       if (result.status !== Office.AsyncResultStatus.Succeeded) {
-        console.error("AM Auto Test: onderwerp lezen mislukt");
-        finish(event);
+        finish();
         return;
       }
 
       var original = result.value || "";
 
-      // Raak gewone klantmails niet aan.
-      if (original.toUpperCase().indexOf(TEST_MARKER) === -1) {
-        finish(event);
+      // Alleen testmails aanpassen.
+      if (!/AMTEST:/i.test(original)) {
+        finish();
         return;
       }
 
-      // Voorkom dubbele dossiernummers.
-      if (/\[AM\d{6}\]/i.test(original)) {
-        finish(event);
+      // Voorkom dubbele markeringen.
+      if (original.indexOf("[AM-EVENT-OK]") !== -1) {
+        finish();
         return;
       }
 
-      // Bewaar Re:, RE:, Fwd: enzovoort.
-      var match = original.match(
-        /^((?:(?:RE|FW|FWD|AW|WG)\s*:\s*)+)/i
-      );
+      var updated = "[AM-EVENT-OK] " + original;
 
-      var prefix = match ? match[0] : "";
-      var remainder = original.slice(prefix.length);
-
-      var newSubject =
-        prefix + "[" + TEST_NUMBER + "] " + remainder;
-
-      item.subject.setAsync(newSubject, function (writeResult) {
+      item.subject.setAsync(updated, function (writeResult) {
         if (writeResult.status !== Office.AsyncResultStatus.Succeeded) {
           console.error(
-            "AM Auto Test: onderwerp wijzigen mislukt",
+            "Onderwerp aanpassen mislukt:",
             writeResult.error
           );
         }
 
-        finish(event);
+        finish();
       });
     });
   }
