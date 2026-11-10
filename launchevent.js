@@ -1,82 +1,138 @@
+
 (function () {
   "use strict";
 
   var TEST_NUMBER = "AM260158";
   var TEST_MARKER = "AMTEST:";
+  var EVENT_TIMEOUT_MS = 4500;
 
-  function finish(event) {
-    if (event && typeof event.completed === "function") {
-      event.completed();
+  function log(stage, detail) {
+    if (typeof console !== "undefined" && console.log) {
+      console.log(
+        "AM Auto Test [" + stage + "]",
+        detail || ""
+      );
     }
   }
 
   function handleCompose(event) {
+    var finished = false;
+    var timeoutId;
+
+    function finish() {
+      if (finished) return;
+
+      finished = true;
+
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      if (
+        event &&
+        typeof event.completed === "function"
+      ) {
+        event.completed();
+      }
+    }
+
     try {
-      var item = Office.context.mailbox.item;
+      log("EVENT_STARTED");
+
+      timeoutId = setTimeout(function () {
+        log(
+          "TIMEOUT",
+          "Geen antwoord van de Office.js onderwerp-API"
+        );
+        finish();
+      }, EVENT_TIMEOUT_MS);
+
+      var item =
+        Office.context &&
+        Office.context.mailbox &&
+        Office.context.mailbox.item;
 
       if (!item || !item.subject) {
-        finish(event);
+        log("NO_SUBJECT_API");
+        finish();
         return;
       }
 
       item.subject.getAsync(function (result) {
-        if (result.status !== Office.AsyncResultStatus.Succeeded) {
-          console.error(
-            "AM Auto Test: onderwerp lezen mislukt",
-            result.error
-          );
-          finish(event);
+        if (finished) return;
+
+        if (
+          result.status !==
+          Office.AsyncResultStatus.Succeeded
+        ) {
+          log("READ_FAILED", result.error);
+          finish();
           return;
         }
 
         var original = result.value || "";
 
-        // Alleen testmails met AMTEST: aanpassen.
-        if (original.toUpperCase().indexOf(TEST_MARKER) === -1) {
-          finish(event);
+        log(
+          "READ_OK",
+          "Onderwerp gelezen; lengte=" + original.length
+        );
+
+        // Alleen testmails mogen gewijzigd worden.
+        if (
+          original.toUpperCase().indexOf(TEST_MARKER) === -1
+        ) {
+          log("SKIPPED", "Geen AMTEST-markering");
+          finish();
           return;
         }
 
-        // Bestaande AM-nummers niet opnieuw toevoegen.
+        // Voorkom dubbele dossiernummers.
         if (/\[AM\d{6}\]/i.test(original)) {
-          finish(event);
+          log("SKIPPED", "Al genummerd");
+          finish();
           return;
         }
 
-        // Antwoordprefix behouden, bijvoorbeeld Re: of AW:
+        // Behoud Re:, AW:, FW:, enzovoort.
         var match = original.match(
           /^((?:(?:RE|FW|FWD|AW|WG)\s*:\s*)+)/i
         );
 
         var prefix = match ? match[0] : "";
-        var remainder = original.slice(prefix.length);
 
-        var newSubject =
-          prefix + "[" + TEST_NUMBER + "] " + remainder;
+        var updated =
+          prefix +
+          "[" + TEST_NUMBER + "] " +
+          original.slice(prefix.length);
 
         item.subject.setAsync(
-          newSubject,
+          updated,
           function (writeResult) {
+            if (finished) return;
+
             if (
-              writeResult.status !==
+              writeResult.status ===
               Office.AsyncResultStatus.Succeeded
             ) {
-              console.error(
-                "AM Auto Test: onderwerp wijzigen mislukt",
-                writeResult.error
-              );
+              log("WRITE_OK");
+            } else {
+              log("WRITE_FAILED", writeResult.error);
             }
 
-            finish(event);
+            finish();
           }
         );
       });
     } catch (error) {
-      console.error("AM Auto Test: onverwachte fout", error);
-      finish(event);
+      log(
+        "EXCEPTION",
+        error && error.message
+      );
+      finish();
     }
   }
 
+  // Handlers onmiddellijk registreren.
   Office.actions.associate(
     "onNewMessageComposeHandler",
     handleCompose
@@ -86,4 +142,6 @@
     "onMessageComposeHandler",
     handleCompose
   );
+
+  log("HANDLERS_REGISTERED");
 })();
