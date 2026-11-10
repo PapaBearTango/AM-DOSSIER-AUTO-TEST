@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xsi:type="MailApp">
+
+  <Id>c37db142-4c6e-4a0b-a93e-08c59f97a6b2</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Architectural Metals</ProviderName>
+  <DefaultLocale>nl-BE</DefaultLocale>
+
+  <DisplayName DefaultValue="AM Dossier Diagnose"/>
+  <Description DefaultValue="Test van automatische AM-nummering in Outlook."/>
+
+  <IconUrl DefaultValue="https://github.githubassets.com/favicons/favicon.png"/>
+  <HighResolutionIconUrl DefaultValue="https://github.githubassets.com/favicons/favicon.png"/>
+  <SupportUrl DefaultValue="https://papabeartango.github.io/AM-DOSSIER-AUTO-TEST/"/>
+
+  <AppDomains>
+    <AppDomain>https://papabeartango.github.io</AppDomain>
+  </AppDomains>
+
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+
+  <Requirements>
+    <Sets DefaultMinVersion="1.12">
+      <Set Name="Mailbox"/>
+    </Sets>
+  </Requirements>
+
+  <FormSettings>
+    <Form xsi:type="ItemEdit">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://papabeartango.github.io/AM-DOSSIER-AUTO-TEST/diagnose/commands.html"/>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+
+  <Permissions>ReadWriteItem</Permissions>
+
+  <Rule xsi:type="ItemIs"
+        ItemType="Message"
+        FormType="Edit"/>
+
+  <DisableEntityHighlighting>false</DisableEntityHighlighting>
+
+  <VersionOverrides
+    xmlns="http://schemas.microsoft.com/office/mailappversionoverrides"
+    xsi:type="VersionOverridesV1_0">
+
+    <VersionOverrides
+      xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1"
+      xsi:type="VersionOverridesV1_1">
+
+      <Requirements>
+        <bt:Sets DefaultMinVersion="1.12">
+          <bt:Set Name="Mailbox"/>
+        </bt:Sets>
+      </Requirements>
+
+      <Hosts>
+        <Host xsi:type="MailHost">
+
+          <Runtimes>
+            <Runtime resid="WebViewRuntime.Url">
+              <Override
+                type="javascript"
+                resid="JSRuntime.Url"/>
+            </Runtime>
+          </Runtimes>
+
+          <DesktopFormFactor>
+
+            <FunctionFile resid="Commands.Url"/>
+
+            <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+              <OfficeTab id="TabDefault">
+                <Group id="AMAuto.Group">
+                  <Label resid="Group.Label"/>
+
+                  <Control xsi:type="Button"
+                           id="AMAuto.Button">
+                    <Label resid="Button.Label"/>
+
+                    <Supertip>
+                      <Title resid="Button.Label"/>
+                      <Description resid="Button.Tooltip"/>
+                    </Supertip>
+
+                    <Icon>
+                      <bt:Image size="16" resid="Icon.16"/>
+                      <bt:Image size="32" resid="Icon.32"/>
+                      <bt:Image size="80" resid="Icon.80"/>
+                    </Icon>
+
+                    <Action xsi:type="ShowTaskpane">
+                      <SourceLocation resid="Commands.Url"/>
+                    </Action>
+                  </Control>
+                </Group>
+              </OfficeTab>
+            </ExtensionPoint>
+
+            <ExtensionPoint xsi:type="LaunchEvent">
+              <LaunchEvents>
+                <LaunchEvent
+                  Type="OnNewMessageCompose"
+                  FunctionName="onNewMessageComposeHandler"/>
+                <LaunchEvent
+                  Type="OnMessageCompose"
+                  FunctionName="onMessageComposeHandler"/>
+              </LaunchEvents>
+              <SourceLocation resid="WebViewRuntime.Url"/>
+            </ExtensionPoint>
+
+          </DesktopFormFactor>
+        </Host>
+      </Hosts>
+
+      <Resources>
+
+        <bt:Images>
+          <bt:Image
+            id="Icon.16"
+            DefaultValue="https://github.githubassets.com/favicons/favicon.png"/>
+          <bt:Image
+            id="Icon.32"
+            DefaultValue="https://github.githubassets.com/favicons/favicon.png"/>
+          <bt:Image
+            id="Icon.80"
+            DefaultValue="https://github.githubassets.com/favicons/favicon.png"/>
+        </bt:Images>
+
+        <bt:Urls>
+          <bt:Url
+            id="Commands.Url"
+            DefaultValue="https://papabeartango.github.io/AM-DOSSIER-AUTO-TEST/diagnose/commands.html"/>
+
+          <bt:Url
+            id="WebViewRuntime.Url"
+            DefaultValue="https://papabeartango.github.io/AM-DOSSIER-AUTO-TEST/diagnose/commands.html"/>
+
+          <bt:Url
+            id="JSRuntime.Url"
+            DefaultValue="https://papabeartango.github.io/AM-DOSSIER-AUTO-TEST/diagnose/launchevent.js"/>
+        </bt:Urls>
+
+        <bt:ShortStrings>
+          <bt:String
+            id="Group.Label"
+            DefaultValue="AM Auto Test"/>
+
+          <bt:String
+            id="Button.Label"
+            DefaultValue="AM Auto Test"/>
+        </bt:ShortStrings>
+
+        <bt:LongStrings>
+          <bt:String
+            id="Button.Tooltip"
+            DefaultValue="Testvenster voor automatische AM-nummering."/>
+        </bt:LongStrings>
+
+      </Resources>
+    </VersionOverrides>
+  </VersionOverrides>
+</OfficeApp>
