@@ -1,0 +1,19 @@
+name: Test central dossier numbering prototype
+on:
+  push:
+    branches:
+      - feature/central-dossier-numbering
+    paths:
+      - 'numbering/**'
+      - '.github/workflows/test-numbering.yml'
+  workflow_dispatch:
+jobs:
+  numbering:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check numbering/dossier-numbering.js
+      - run: node --test numbering/tests/dossier-numbering.test.cjs
