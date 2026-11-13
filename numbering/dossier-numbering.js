@@ -8,7 +8,7 @@
  * concurrency-safe conditional write. Do not use Outlook folder scans,
  * Attio maximum values, localStorage, or GitHub files as a counter.
  *
- * store.allocate({ year, requestId, maxSequence }) -> integer sequence
+ * store.allocate({ year, requestId, maxSequence }) -> { year, sequence }
  *   - Returns the same sequence for retries with the same requestId.
  *   - Atomically increments the year counter for a new requestId.
  *   - Enforces a unique constraint on (year, sequence).
@@ -49,8 +49,11 @@ async function allocateDossierNumber({ store, requestId, now = new Date() }) {
   // UTC defines the rollover unambiguously; configure business timezone in
   // the production service if Belgian local midnight is the desired boundary.
   const year = now.getUTCFullYear();
-  const sequence = await store.allocate({ year, requestId, maxSequence: MAX_SEQUENCE });
-  return formatDossierNumber(year, sequence);
+  const allocation = await store.allocate({ year, requestId, maxSequence: MAX_SEQUENCE });
+  if (!allocation || !Number.isInteger(allocation.year) || !Number.isInteger(allocation.sequence)) {
+    throw new TypeError('Store must return { year, sequence }');
+  }
+  return formatDossierNumber(allocation.year, allocation.sequence);
 }
 
 module.exports = {
