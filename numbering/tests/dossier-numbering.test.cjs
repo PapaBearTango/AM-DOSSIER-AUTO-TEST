@@ -12,12 +12,12 @@ function fakeAtomicStore() {
   return {
     async allocate({ year, requestId, maxSequence }) {
       const key = year + ':' + requestId;
-      if (allocations.has(key)) return allocations.get(key);
+      if (allocations.has(key)) return { year, sequence: allocations.get(key) };
       const next = (counters.get(year) || 0) + 1;
       if (next > maxSequence) throw new RangeError('Annual sequence exhausted');
       counters.set(year, next);
       allocations.set(key, next);
-      return next;
+      return { year, sequence: next };
     },
     setYearCounter(year, value) { counters.set(year, value); }
   };
