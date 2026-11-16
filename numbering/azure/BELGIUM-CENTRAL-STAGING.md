@@ -2,7 +2,7 @@
 
 ## Confirmed by project owner
 
-- Azure subscription is available.
+- Azure subscription display name: **Verhoestraete-MSSentinel-sub** (user-provided; not independently verified).\n- Azure subscription is available.
 - User has **Contributor** access.
 - Preferred region: **Belgium Central** (`belgiumcentral`).
 
@@ -27,7 +27,7 @@ The script only reads Azure context, region availability, resource groups and
 resource-provider registration state. Do not paste credentials, access tokens
 or database passwords into GitHub or ChatGPT.
 
-## Decisions before provisioning
+## Subscription scope warning\n\nThe display name contains `MSSentinel`, which suggests the subscription may be dedicated to Microsoft Sentinel / security monitoring. This is **not verified**. Do not provision App Service, PostgreSQL, or networking here until the subscription owner explicitly confirms non-security application workloads are allowed. Prefer a separate application staging subscription if policy requires isolation.\n\n## Decisions before provisioning
 
 1. Confirm subscription ID and tenant ID, or supply only the subscription
    **display name** if IDs should remain internal.
