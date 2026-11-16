@@ -15,5 +15,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --check numbering/dossier-numbering.js
-      - run: node --test numbering/tests/dossier-numbering.test.cjs
+      - run: node --check numbering/dossier-numbering.js && node --check numbering/postgres-store.js && node --check numbering/api-server.js && node --check numbering/start-server.js
+      - run: node --test numbering/tests/*.test.cjs
